@@ -1,92 +1,83 @@
-# TradingBot-Public
 
-# Trading Bot Workflow
+# Trading Bot: An Automated AI-Powered Financial Trader
 
-This repository contains a fully automated trading bot built using Alpaca's API, OpenAI's GPT, and additional financial analysis tools such as `yfinance`, `ta-lib`, and sentiment analysis via VADER. The bot uses a combination of real-time stock price analysis, sentiment analysis, and risk management techniques to make trading decisions.
+This project is a comprehensive trading bot designed for automated trading using Alpaca's API, OpenAI for decision-making, and various financial tools and APIs. It makes informed trading decisions based on technical analysis, news sentiment, risk management strategies, and portfolio tracking.
 
 ## Features
 
-- **Real-Time Trading**: Subscribes to live stock price data for selected S&P 500 stocks (e.g., AAPL, MSFT, GOOGL, AMZN, TSLA).
-- **Sentiment Analysis**: Uses the VADER sentiment analyzer to score financial news articles and influence trading decisions.
-- **Technical Analysis**: Implements RSI (Relative Strength Index) for momentum trading.
-- **Value at Risk (VaR)**: Estimates the potential loss of an investment over a specific period of time.
-- **Risk Management**: Automatically calculates position sizes based on portfolio size, and limits drawdown.
-- **Automated Liquidation**: Automatically liquidates all positions at 3:50 PM EST to avoid holding overnight.
-- **GitHub Integration**: Commits log files to a GitHub repository for tracking trade decisions and performance.
+### Real-Time Trading and Market Data
+- **Market Data Feeds**: The bot subscribes to real-time stock price data using Alpaca's WebSocket streams.
+- **Supported Stocks**: By default, the bot evaluates selected S&P 500 stocks (AAPL, MSFT, GOOGL, AMZN, TSLA) but can be configured for other stocks.
 
-## Workflow
+### Sentiment and Technical Analysis
+- **VADER Sentiment Analysis**: Fetches real-time news sentiment from sources like Finnhub to influence trade decisions.
+- **RSI Indicator**: Uses the Relative Strength Index (RSI) for momentum trading and detecting overbought/oversold conditions.
+- **P/E Ratio**: Integrates stock valuation data to assess over- or undervalued stocks.
+- **Value at Risk (VaR)**: Computes potential portfolio losses based on historical stock price movements.
 
-This bot runs on a GitHub Actions workflow that:
+### Risk Management
+- **Max Risk per Trade**: Automatically calculates position size to limit the risk to 1% of the portfolio value per trade.
+- **Drawdown Protection**: Automatically liquidates positions if the portfolio drawdown exceeds a predefined threshold of 8%.
+- **Trailing Stop-Losses**: Sets trailing stops to protect gains after profitable trades.
+- **Portfolio Liquidation**: All positions are liquidated at 3:50 PM EST to avoid holding overnight risk.
 
-1. Installs necessary dependencies, including Python packages and `ta-lib`.
-2. Runs the trading bot script.
-3. Commits logs to the repository periodically and at the end of the trading session.
+### AI-Driven Decision Making
+- **OpenAI Integration**: The bot uses OpenAI's GPT-3.5 for decision making. It combines sentiment, RSI, P/E ratio, and VaR to get suggestions on whether to buy or sell stocks, based on market conditions.
 
-### Scheduled Workflow
+### GitHub Integration and Logs
+- **Auto Commit Logs**: The bot periodically commits trading logs (`chat_gpt_logs.json` and `trade_decisions.json`) to GitHub. Logs are also committed upon job completion to ensure all decisions are tracked.
+- **Error Handling**: Alerts are sent via email in case of API errors, connection issues, or trading exceptions.
 
-The bot is triggered by a cron job that runs at:
-
-- **9:25 AM EST** (13:25 UTC during Daylight Savings)
-- **9:25 AM EST** (14:25 UTC during Standard Time)
-
-The job will run until 3:50 PM EST, at which point it will liquidate all positions and wait for 10 minutes before shutting down.
+### Automated Trading Workflow
+- **Scheduled Execution**: The bot automatically starts at **9:25 AM EST** and runs until **3:50 PM EST**. 
+- **Manual Trigger**: The workflow can also be manually triggered from the GitHub Actions tab.
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Python 3.12.6** (or the version specified in `setup-python`)
-- **Alpaca Paper API** (Create an account at [Alpaca](https://alpaca.markets))
-- **OpenAI API** (Create an account at [OpenAI](https://openai.com))
-- **GitHub Repository** (for logging trade decisions)
-- **News API** (such as [Finnhub](https://finnhub.io/))
+- Python 3.12.6 (or compatible version)
+- An account with Alpaca for Paper Trading ([Sign up here](https://alpaca.markets/))
+- An OpenAI API key ([Get your API key](https://openai.com))
+- A News API key from Finnhub or similar service ([Get API key](https://finnhub.io))
 
-### Environment Setup
+### Installation
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/YOUR_GITHUB_USERNAME/TradingBot.git
+    git clone https://github.com/YOUR_USERNAME/TradingBot.git
     cd TradingBot
     ```
 
-2. Install required dependencies:
+2. Install the dependencies:
     ```bash
     pip install -r requirements.txt
     ```
 
-3. Set up Alpaca, OpenAI, and News API keys in the script:
-    - `API_KEY`: Alpaca API key
-    - `API_SECRET`: Alpaca secret key
-    - `openai.api_key`: OpenAI API key
-    - `NEWS_API_KEY`: Finnhub (or other) News API key
+3. Add your API keys to the `bot.py` file:
+    - Alpaca API key
+    - Alpaca API secret
+    - OpenAI API key
+    - News API key
 
-4. Run the bot manually (optional):
-    ```bash
-    python bot.py
-    ```
+### Running the Bot Locally
 
-### GitHub Actions Integration
+You can run the trading bot manually using the following command:
+```bash
+python bot.py
+```
 
-This bot is designed to run automatically via GitHub Actions. The `.github/workflows/main.yml` file defines the following steps:
+### GitHub Actions Workflow
 
-- Checkout the repository.
-- Install Python and dependencies.
-- Run the bot script.
-- Commit and push the trade log and decisions.
+The bot is designed to run automatically via GitHub Actions. It includes the following steps:
 
-#### Workflow Triggers
+1. **Python Setup**: Installs the appropriate version of Python and required packages (including `ta-lib`).
+2. **Bot Execution**: Runs the bot during market hours.
+3. **Log Management**: Commits logs of trading decisions and GPT-3 responses to the repository.
 
-- **Scheduled**: Runs the bot automatically based on the defined cron schedule (9:25 AM EST).
-- **Manual**: The workflow can be manually triggered from the Actions tab.
+## Workflow Configuration
 
-### Logs
-
-The bot logs trading decisions and API interactions in JSON format. Logs are committed to the GitHub repository:
-
-- `chat_gpt_logs.json`: Logs interactions with OpenAI for trading decisions.
-- `trade_decisions.json`: Logs the buy/sell decisions for each stock.
-
-## Example Cron Schedule
+The bot runs automatically at **9:25 AM EST** and stops at **3:50 PM EST**, using the following cron schedule:
 
 ```yaml
 on:
@@ -94,3 +85,37 @@ on:
     - cron: '25 13 * * 1-5'  # Daylight Savings
     - cron: '25 14 * * 1-5'  # Standard Time
   workflow_dispatch:
+```
+
+### Log Files
+
+- **chat_gpt_logs.json**: Logs all OpenAI chat responses regarding buy/sell decisions.
+- **trade_decisions.json**: Logs all buy/sell/hold decisions made by the bot.
+
+These logs are periodically committed to GitHub, ensuring every decision is tracked.
+
+### Error Handling
+
+If the bot encounters any errors, such as API call failures or stream disconnections, it will:
+- Send an email alert to the designated email.
+- Retry certain failed actions like API calls.
+
+## Liquidation
+
+- At **3:50 PM EST**, the bot liquidates all positions and halts further trades.
+- There is a 10-minute waiting period before the bot shuts down, ensuring that no further trades are made after liquidation.
+
+## Contributing
+
+We welcome contributions! Here's how you can get started:
+
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature-branch`).
+3. Commit your changes (`git commit -m 'Add some feature'`).
+4. Push to the branch (`git push origin feature-branch`).
+5. Open a pull request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
