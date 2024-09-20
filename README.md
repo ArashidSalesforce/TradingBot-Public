@@ -3,6 +3,8 @@
 
 This project is a comprehensive trading bot designed for automated trading using Alpaca's API, OpenAI for decision-making, and various financial tools and APIs. It makes informed trading decisions based on technical analysis, news sentiment, risk management strategies, and portfolio tracking.
 
+**Note**: This code is not public at the moment but may be in the future.
+
 ## Features
 
 ### Real-Time Trading and Market Data
