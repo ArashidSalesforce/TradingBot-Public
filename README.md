@@ -1,123 +1,98 @@
+# Trading Bot
 
-# Trading Bot: An Automated AI-Powered Financial Trader
-
-This project is a comprehensive trading bot designed for automated trading using Alpaca's API, OpenAI for decision-making, and various financial tools and APIs. It makes informed trading decisions based on technical analysis, news sentiment, risk management strategies, and portfolio tracking.
+A Python-based trading bot that uses Alpaca API, YFinance, VADER sentiment analysis, and OpenAI's GPT-3.5 to analyze financial data, execute trades, and manage risk. This bot is designed to operate automatically and includes several features such as risk management, news sentiment analysis, and portfolio management.
 
 **Note**: This code is not public at the moment but may be in the future.
 
 ## Features
 
-### Real-Time Trading and Market Data
-- **Market Data Feeds**: The bot subscribes to real-time stock price data using Alpaca's WebSocket streams.
-- **Supported Stocks**: By default, the bot evaluates selected S&P 500 stocks (AAPL, MSFT, GOOGL, AMZN, TSLA) but can be configured for other stocks.
+- **Automatic Trading**: The bot uses Alpaca API to trade stocks automatically.
+- **RSI & Sentiment Analysis**: It utilizes RSI (Relative Strength Index) from `ta-lib` and sentiment analysis using VADER to make informed trading decisions.
+- **GPT-3.5 Integration**: Queries OpenAI GPT-3.5 to get trade decisions based on stock data (RSI, sentiment, P/E ratio, VaR).
+- **Risk Management**: Implements a maximum drawdown limit, maximum allocation per stock, and trailing stops.
+- **Logging**: Trades and OpenAI decisions are logged into JSON files (`chat_gpt_logs.json` and `trade_decisions.json`), and committed periodically to a remote repository.
+- **Email Notifications**: Sends error notifications via email using SMTP.
+- **Portfolio Management**: Automatically liquidates the portfolio if its value falls below a defined threshold.
+- **Real-time Stock Data**: Fetches real-time stock prices via Alpaca's WebSocket streaming API.
 
-### Sentiment and Technical Analysis
-- **VADER Sentiment Analysis**: Fetches real-time news sentiment from sources like Finnhub to influence trade decisions.
-- **RSI Indicator**: Uses the Relative Strength Index (RSI) for momentum trading and detecting overbought/oversold conditions.
-- **P/E Ratio**: Integrates stock valuation data to assess over- or undervalued stocks.
-- **Value at Risk (VaR)**: Computes potential portfolio losses based on historical stock price movements.
+## Installation
 
-### Risk Management
-- **Max Risk per Trade**: Automatically calculates position size to limit the risk to 1% of the portfolio value per trade.
-- **Drawdown Protection**: Automatically liquidates positions if the portfolio drawdown exceeds a predefined threshold of 8%.
-- **Trailing Stop-Losses**: Sets trailing stops to protect gains after profitable trades.
-- **Portfolio Liquidation**: All positions are liquidated at 3:50 PM EST to avoid holding overnight risk.
+1. Clone the repository (Note: The code is currently not public, but may be in the future).
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Install TA-Lib from source (if required):
+   ```bash
+   sudo apt-get update
+   sudo apt-get install -y build-essential wget
+   wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+   tar -xzf ta-lib-0.4.0-src.tar.gz
+   cd ta-lib
+   ./configure --prefix=/usr
+   make
+   sudo make install
+   ```
 
-### AI-Driven Decision Making
-- **OpenAI Integration**: The bot uses OpenAI's GPT-3.5 for decision making. It combines sentiment, RSI, P/E ratio, and VaR to get suggestions on whether to buy or sell stocks, based on market conditions.
+## Usage
 
-### GitHub Integration and Logs
-- **Auto Commit Logs**: The bot periodically commits trading logs (`chat_gpt_logs.json` and `trade_decisions.json`) to GitHub. Logs are also committed upon job completion to ensure all decisions are tracked.
-- **Error Handling**: Alerts are sent via email in case of API errors, connection issues, or trading exceptions.
+To run the bot:
 
-### Automated Trading Workflow
-- **Scheduled Execution**: The bot automatically starts at **9:25 AM EST** and runs until **3:50 PM EST**. 
-- **Manual Trigger**: The workflow can also be manually triggered from the GitHub Actions tab.
-
-## Getting Started
-
-### Prerequisites
-
-- Python 3.12.6 (or compatible version)
-- An account with Alpaca for Paper Trading ([Sign up here](https://alpaca.markets/))
-- An OpenAI API key ([Get your API key](https://openai.com))
-- A News API key from Finnhub or similar service ([Get API key](https://finnhub.io))
-
-### Installation
-
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/YOUR_USERNAME/TradingBot.git
-    cd TradingBot
-    ```
-
-2. Install the dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3. Add your API keys to the `bot.py` file:
-    - Alpaca API key
-    - Alpaca API secret
-    - OpenAI API key
-    - News API key
-
-### Running the Bot Locally
-
-You can run the trading bot manually using the following command:
 ```bash
 python bot.py
 ```
 
-### GitHub Actions Workflow
+The bot operates by streaming real-time stock price data, evaluating stocks using technical indicators, and querying GPT-3.5 for decisions.
 
-The bot is designed to run automatically via GitHub Actions. It includes the following steps:
+### Features Overview
 
-1. **Python Setup**: Installs the appropriate version of Python and required packages (including `ta-lib`).
-2. **Bot Execution**: Runs the bot during market hours.
-3. **Log Management**: Commits logs of trading decisions and GPT-3 responses to the repository.
+- **Sentiment Analysis**: Fetches recent news articles using Finnhub API and scores the sentiment using VADER Sentiment Analysis.
+- **GPT-3.5 Trading Decision**: The bot collects the RSI value, sentiment score, P/E ratio, and VaR, and queries OpenAI to decide whether to buy or sell stocks.
+- **Risk Management**: A max drawdown limit of 8% and a trailing stop of 2% are enforced to protect against significant losses.
 
-## Workflow Configuration
+### Auto Liquidation
 
-The bot runs automatically at **9:25 AM EST** and stops at **3:50 PM EST**, using the following cron schedule:
+The bot is designed to liquidate all positions at 3:50 PM Eastern Time and shut down to prevent further trading after the market closes.
 
-```yaml
-on:
-  schedule:
-    - cron: '25 13 * * 1-5'  # Daylight Savings
-    - cron: '25 14 * * 1-5'  # Standard Time
-  workflow_dispatch:
+## Logging and Commit
+
+The bot logs its trading decisions and GPT queries to JSON files and periodically commits the logs to the GitHub repository (if configured).
+
+```bash
+chat_gpt_logs.json  # Logs GPT-based decisions
+trade_decisions.json  # Logs all trade decisions
 ```
 
-### Log Files
+## Customization
 
-- **chat_gpt_logs.json**: Logs all OpenAI chat responses regarding buy/sell decisions.
-- **trade_decisions.json**: Logs all buy/sell/hold decisions made by the bot.
+You can modify the following parameters in the script:
 
-These logs are periodically committed to GitHub, ensuring every decision is tracked.
+- **Portfolio Settings**:
+  - `INITIAL_PORTFOLIO_VALUE`: Initial portfolio value ($26,000).
+  - `MIN_PORTFOLIO_VALUE`: Minimum portfolio value ($25,100).
+  - `MAX_RISK_PER_TRADE`: Max risk per trade (1% of portfolio value).
+  - `MAX_DRAW_DOWN_LIMIT`: Maximum allowable drawdown (8%).
 
-### Error Handling
+- **Alpaca API Settings**:
+  - Replace the Alpaca API credentials with your own in the script:
+    ```python
+    API_KEY = 'YOUR_ALPACA_API_KEY'
+    API_SECRET = 'YOUR_ALPACA_API_SECRET'
+    BASE_URL = 'https://paper-api.alpaca.markets'
+    ```
 
-If the bot encounters any errors, such as API call failures or stream disconnections, it will:
-- Send an email alert to the designated email.
-- Retry certain failed actions like API calls.
-
-## Liquidation
-
-- At **3:50 PM EST**, the bot liquidates all positions and halts further trades.
-- There is a 10-minute waiting period before the bot shuts down, ensuring that no further trades are made after liquidation.
+- **Email Notifications**: Configure the email notifications by providing your email credentials:
+  ```python
+  EMAIL_USER = 'your-email@gmail.com'
+  EMAIL_PASS = 'your-email-password'
+  ```
 
 ## Contributing
 
-We welcome contributions! Here's how you can get started:
-
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature-branch`).
-3. Commit your changes (`git commit -m 'Add some feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Open a pull request.
+At this time, contributions are not accepted because the code is not public. However, this may change in the future.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
+
 
