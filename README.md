@@ -2,8 +2,6 @@
 
 A Python-based trading bot that uses Alpaca API, YFinance, VADER sentiment analysis, and OpenAI's GPT-3.5 to analyze financial data, execute trades, and manage risk. This bot is designed to operate automatically and includes several features such as risk management, news sentiment analysis, and portfolio management.
 
-**Note**: This code is not public at the moment but may be in the future.
-
 ## Features
 
 - **Automatic Trading**: The bot uses Alpaca API to trade stocks automatically.
@@ -17,7 +15,7 @@ A Python-based trading bot that uses Alpaca API, YFinance, VADER sentiment analy
 
 ## Installation
 
-1. Clone the repository (Note: The code is currently not public, but may be in the future).
+1. Clone the repository.
 2. Install dependencies:
    ```bash
    pip install -r requirements.txt
@@ -86,10 +84,6 @@ You can modify the following parameters in the script:
   EMAIL_USER = 'your-email@gmail.com'
   EMAIL_PASS = 'your-email-password'
   ```
-
-## Contributing
-
-At this time, contributions are not accepted because the code is not public. However, this may change in the future.
 
 ## License
 
