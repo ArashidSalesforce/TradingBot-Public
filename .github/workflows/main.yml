@@ -1,0 +1,85 @@
+name: Trading Bot Workflow
+
+on:
+  # Trigger at 9:00 AM EST (13:00 UTC for Daylight Savings and 14:00 UTC for Standard Time)
+  schedule:
+    - cron: '0 13 * * 1-5'  # Daylight Savings
+    - cron: '0 14 * * 1-5'  # Standard Time
+
+  # Manual trigger: Allows the workflow to be triggered manually from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 420  # Automatically stop the job after 6.5 hours (390 minutes)
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12.6'  # Use the appropriate Python version
+
+    # Install ta-lib system dependencies
+    - name: Install ta-lib from source
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential wget
+        wget http://prdownloads.sourceforge.net/ta-lib/ta-lib-0.4.0-src.tar.gz
+        tar -xzf ta-lib-0.4.0-src.tar.gz
+        cd ta-lib
+        ./configure --prefix=/usr
+        make
+        sudo make install
+
+    # Caching Hugging Face models
+    - name: Cache Hugging Face models
+      uses: actions/cache@v2
+      with:
+        path: ~/.cache/huggingface
+        key: ${{ runner.os }}-huggingface-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-huggingface-
+
+    # Install Python dependencies
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt  # Install your Python dependencies including transformers and torch
+
+    - name: Run Trading Bot Script
+      run: |
+        python bot.py  # Replace this with the correct script filename if different
+
+    # Commit and push chat_gpt_logs.json and trade_decisions.json if updated
+    - name: Commit updated logs if they exist
+      run: |
+        git config --global user.name 'Abdullah Rashid'
+        git config --global user.email 'abdullah.rashid5341@gmail.com'
+        # Pull the latest changes from the remote repository
+        git pull origin main --rebase  # Ensure we're up to date with the remote
+        # Check for changes and commit if any
+        if git status --porcelain | grep -q 'chat_gpt_logs.json\|trade_decisions.json'; then
+          git add chat_gpt_logs.json trade_decisions.json
+          git commit -m "Update chat_gpt_logs and trade_decisions"
+        else
+          echo "No changes in logs to commit."
+      continue-on-error: true  # Continue even if there are no changes to commit
+
+    - name: Push changes
+      run: git push
+      continue-on-error: true  # Continue even if there's nothing to push
+
+    # Post-job step to always commit logs when the job completes, even if it fails or is canceled
+    - name: Always commit logs on job completion
+      if: always()
+      run: |
+        git config --global user.name 'Abdullah Rashid'
+        git config --global user.email 'abdullah.rashid5341@gmail.com'
+        git add chat_gpt_logs.json trade_decisions.json
+        git commit -m "Post-job commit of logs" || echo "No changes to commit"
+        git push || echo "Nothing to push"
+

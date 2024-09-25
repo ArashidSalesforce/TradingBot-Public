@@ -1,0 +1,15 @@
+openai==0.28.0
+alpaca-trade-api
+yfinance
+pandas
+numpy
+requests
+vaderSentiment
+ta-lib
+#pandas-ta
+ta
+matplotlib
+#transformers
+#transformers==4.25.1  # Hugging Face Transformers library
+#torch==1.12.0         # PyTorch, necessary for running Hugging Face models
+#torch

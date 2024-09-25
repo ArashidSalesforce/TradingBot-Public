@@ -1,0 +1,9 @@
+{"time": "2024-09-18T10:49:03.172694", "ticker": "TSLA", "action": "BUY", "qty": 20}
+{"time": "2024-09-18T10:51:02.874784", "ticker": "MSFT", "action": "BUY", "qty": 29}
+{"time": "2024-09-18T10:52:02.829406", "ticker": "GOOGL", "action": "BUY", "qty": 53}
+{"time": "2024-09-18T10:52:08.521581", "ticker": "AAPL", "action": "BUY", "qty": 52}
+{"time": "2024-09-18T11:08:10.829755", "ticker": "AAPL", "action": "NO_ACTION", "reason": "Missing decision from OpenAI"}
+{"time": "2024-09-18T11:08:13.503680", "ticker": "MSFT", "action": "NO_ACTION", "reason": "Missing decision from OpenAI"}
+{"time": "2024-09-18T11:08:16.157909", "ticker": "GOOGL", "action": "NO_ACTION", "reason": "Missing decision from OpenAI"}
+{"time": "2024-09-18T11:08:18.310174", "ticker": "TSLA", "action": "NO_ACTION", "reason": "Missing decision from OpenAI"}
+{"time": "2024-09-18T11:08:20.651838", "ticker": "AMZN", "action": "NO_ACTION", "reason": "Missing decision from OpenAI"}
